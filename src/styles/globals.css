@@ -1,0 +1,295 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  html,
+  body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    /* Removed bg-background to allow Tailwind bg-* classes to work */
+    color: hsl(var(--foreground));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Custom Narraviz utilities */
+@layer utilities {
+  .bg-story-gradient {
+    background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+  }
+
+  .bg-chart-gradient {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 102, 255, 0.1) 0%,
+      rgba(0, 212, 170, 0.1) 100%
+    );
+  }
+
+  .animate-chart-reveal {
+    animation: chart-reveal 0.8s ease-out forwards;
+  }
+
+  .animate-data-flow {
+    animation: data-flow 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-primary {
+    animation: pulsePrimary 2s ease-in-out infinite;
+  }
+
+  @keyframes chartReveal {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes dataFlow {
+    0%,
+    100% {
+      transform: translateX(-10px);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateX(10px);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulsePrimary {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 oklch(0.55 0.25 262 / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 15px oklch(0.55 0.25 262 / 0);
+    }
+  }
+
+  /* Data colors */
+  .text-data-primary { color: oklch(0.55 0.25 262); }
+  .text-data-secondary { color: oklch(0.75 0.15 170); }
+  .text-data-accent { color: oklch(0.72 0.18 20); }
+  .text-data-success { color: oklch(0.65 0.18 140); }
+  .text-data-warning { color: oklch(0.75 0.15 85); }
+  .bg-data-primary { background-color: oklch(0.55 0.25 262); }
+  .bg-data-secondary { background-color: oklch(0.75 0.15 170); }
+  .bg-data-accent { background-color: oklch(0.72 0.18 20); }
+  .bg-data-success { background-color: oklch(0.65 0.18 140); }
+  .bg-data-warning { background-color: oklch(0.75 0.15 85); }
+
+  .bg-story-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.55 0.25 262) 0%,
+      oklch(0.75 0.15 170) 100%
+    );
+  }
+
+  .bg-chart-gradient {
+    background: linear-gradient(
+      90deg,
+      oklch(0.55 0.25 262 / 0.1) 0%,
+      oklch(0.75 0.15 170 / 0.1) 100%
+    );
+  }
+}
+
+/* Success & warning shortcuts */
+.bg-success { background-color: #00C851; }
+.text-success { color: #00C851; }
+.bg-warning { background-color: #FFB400; }
+.text-warning { color: #FFB400; }
+
+/* GSAP Particle Animations */
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1);
+    opacity: 0;
+  }
+}
+
+.particle {
+  animation: float-up linear infinite;
+}
+
+/* Enhanced GSAP animations - Optimized will-change usage */
+.magnetic-button:hover {
+  will-change: transform;
+}
+
+.magnetic-button:not(:hover) {
+  will-change: auto;
+}
+
+.reveal-element.animating {
+  will-change: transform, opacity;
+}
+
+.reveal-element:not(.animating) {
+  will-change: auto;
+}
+
+.hero-text-container .hero-word {
+  display: inline-block;
+}
+
+.hero-text-container.animating .hero-word {
+  will-change: transform, opacity;
+}
+
+.parallax-section.scrolling {
+  will-change: transform;
+}
+
+/* Data visualization styles */
+.data-bar {
+  transition: all 0.3s ease;
+}
+
+.data-bar:hover {
+  transform: scaleY(1.1);
+  filter: brightness(1.1);
+  will-change: transform;
+}
+
+.data-line.animating {
+  will-change: stroke-dashoffset;
+}
+
+/* Video background enhancements */
+.video-background {
+  position: relative;
+  overflow: hidden;
+}
+
+.video-background video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.video-background video.loading {
+  will-change: opacity;
+}
+
+.video-background video.loaded {
+  will-change: auto;
+}
+
+/* Radial gradient utility */
+.bg-radial-gradient {
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
+/* Video optimization classes */
+.video-optimized {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Enhanced loading spinner */
+@keyframes video-loading {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.video-loading {
+  animation: video-loading 2s ease-in-out infinite;
+}
+
+/* Performance-optimized parallax */
+.css-parallax-container {
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  perspective: 1px;
+}
+
+.css-parallax-content {
+  transform-style: preserve-3d;
+}
+
+/* Optimized will-change usage */
+.will-change-transform {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .will-change-transform {
+    will-change: auto;
+    transform: none !important;
+  }
+  
+  .parallax-section {
+    transform: none !important;
+  }
+}
