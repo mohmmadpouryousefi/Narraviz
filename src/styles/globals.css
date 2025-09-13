@@ -292,4 +292,27 @@
   .parallax-section {
     transform: none !important;
   }
+
+  .animate-pulse-border {
+    animation: none !important;
+  }
+}
+
+/* Pricing section animations */
+@keyframes pulse-border {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+/* Grid pattern for background */
+.bg-grid-slate-900\/\[0\.04\] {
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.04) 1px, transparent 0);
 }
