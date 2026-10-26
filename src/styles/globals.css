@@ -3,6 +3,18 @@
    (muted-foreground, border, data-primary, ...) used across the components. */
 @config "../../tailwind.config.js";
 
+/* Tailwind 4 changed the default border color to currentColor; restore the theme's border color
+   so `border` on cards, inputs and dividers is the light gray the components were designed with. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: hsl(var(--border));
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

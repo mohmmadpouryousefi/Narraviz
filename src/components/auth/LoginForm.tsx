@@ -1,34 +1,23 @@
-import { useState } from "react";
+"use client";
+
+import { useActionState } from "react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { ArrowRight, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { SocialLogin } from "./SocialLogin";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { logIn, type AuthFormState } from "@/app/auth/actions";
+import { FormField } from "./FormField";
 
-export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+interface LoginFormProps {
+  callbackUrl: string;
+  /** Rendered server-side so the GitHub button can use a server action. */
+  socialLogin?: React.ReactNode;
+  initialError?: string;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    console.log("Logging attemt:", { email, password });
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
+export function LoginForm({ callbackUrl, socialLogin, initialError }: LoginFormProps) {
+  const [state, action, pending] = useActionState<AuthFormState, FormData>(logIn, {});
+  const error = state.error ?? (state.fieldErrors ? undefined : initialError);
 
   return (
     <div className="w-full max-w-sm mx-auto">
@@ -43,9 +32,45 @@ export function LoginForm() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <SocialLogin mode="login" />
-          
+          {socialLogin}
+
+          <form action={action} className="space-y-4" noValidate>
+            <input type="hidden" name="callbackUrl" value={callbackUrl} />
+            {error && (
+              <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
+            <FormField
+              name="email"
+              label="Email"
+              type="email"
+              autoComplete="email"
+              icon={Mail}
+              defaultValue={state.values?.email}
+              error={state.fieldErrors?.email}
+            />
+            <FormField
+              name="password"
+              label="Password"
+              type="password"
+              autoComplete="current-password"
+              icon={Lock}
+              error={state.fieldErrors?.password}
+            />
+            <Button type="submit" className="w-full h-11 bg-data-primary hover:bg-data-primary/90" disabled={pending}>
+              {pending ? "Signing in…" : "Sign in"}
+              {!pending && <ArrowRight className="ml-2 h-4 w-4" aria-hidden />}
+            </Button>
+          </form>
         </CardContent>
+
+        <CardFooter className="justify-center text-sm text-muted-foreground">
+          No account yet?&nbsp;
+          <Link href="/auth/signup" className="font-medium text-data-primary hover:underline">
+            Create one
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );
