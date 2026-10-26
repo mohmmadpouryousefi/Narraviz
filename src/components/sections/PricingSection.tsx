@@ -22,13 +22,13 @@ import {
   CheckCircle, 
   X, 
   Info, 
-  Star, 
   Shield, 
   Zap, 
-  Users,
-  Globe,
-  Award,
-  Crown
+  Crown,
+  Github,
+  FileSpreadsheet,
+  Sparkles,
+  Lock,
 } from "lucide-react";
 
 export function PricingSection() {
@@ -294,72 +294,24 @@ function PricingCard({
   );
 }
 
-// Trust Section with Testimonials
+// Facts about the project itself; no customer logos, user counts or testimonials until they are real.
 function TrustSection() {
-  const trustBadges = [
-    { icon: Shield, text: "SOC 2 Compliant" },
-    { icon: Globe, text: "99.9% Uptime" },
-    { icon: Users, text: "10,000+ Users" },
-    { icon: Award, text: "G2 Leader 2024" },
-  ];
-
-  const testimonials = [
-    {
-      quote: "Narraviz transformed how we present data to stakeholders. The AI insights are incredible!",
-      author: "Sarah Chen",
-      role: "Data Director",
-      company: "TechCorp"
-    },
-    {
-      quote: "Cut our reporting time by 70%. The automated storytelling feature is a game-changer.",
-      author: "Michael Rodriguez", 
-      role: "Analytics Manager",
-      company: "StartupXYZ"
-    },
-    {
-      quote: "Finally, a tool that makes data accessible to everyone in our organization.",
-      author: "Emily Watson",
-      role: "VP of Operations", 
-      company: "Enterprise Inc"
-    }
+  const facts = [
+    { icon: Github, text: "Source code on GitHub" },
+    { icon: FileSpreadsheet, text: "CSV uploads up to 10 MB" },
+    { icon: Sparkles, text: "Narratives written by Claude" },
+    { icon: Lock, text: "Your data stays in your account" },
   ];
 
   return (
-    <div className="space-y-16">
-      {/* Trust Badges */}
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-6">
-          Trusted by data teams worldwide
-        </p>
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-          {trustBadges.map((badge, index) => (
-            <div key={index} className="flex items-center gap-2 text-muted-foreground">
-              <badge.icon className="w-5 h-5" />
-              <span className="text-sm font-medium">{badge.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Testimonials */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {testimonials.map((testimonial, index) => (
-          <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-            <div className="flex mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-            <blockquote className="text-sm text-muted-foreground mb-4">
-              &ldquo;{testimonial.quote}&rdquo;
-            </blockquote>
-            <div className="text-sm">
-              <div className="font-semibold">{testimonial.author}</div>
-              <div className="text-muted-foreground">
-                {testimonial.role} at {testimonial.company}
-              </div>
-            </div>
-          </Card>
+    <div className="text-center">
+      <p className="text-sm text-muted-foreground mb-6">How Narraviz works</p>
+      <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+        {facts.map((fact) => (
+          <div key={fact.text} className="flex items-center gap-2 text-muted-foreground">
+            <fact.icon className="w-5 h-5" />
+            <span className="text-sm font-medium">{fact.text}</span>
+          </div>
         ))}
       </div>
     </div>

@@ -156,25 +156,18 @@ export function HeroSection() {
             </div>
           </RevealOnScroll>
 
-          {/* Trust Indicators with Animation */}
+          {/* Tech stack (no customer logos until there are real customers) */}
           <RevealOnScroll delay={0.5}>
             <div className="mt-8 pt-6 border-t border-white/20">
               <p className="text-sm text-white/60 mb-4">
-                Trusted by teams at
+                Built with
               </p>
-              <div className="flex items-center justify-center gap-8 opacity-80">
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Microsoft
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Google
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Salesforce
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Adobe
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 opacity-80">
+                {["Next.js", "TypeScript", "PostgreSQL", "Claude"].map((tech) => (
+                  <div key={tech} className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
+                    {tech}
+                  </div>
+                ))}
               </div>
             </div>
           </RevealOnScroll>
