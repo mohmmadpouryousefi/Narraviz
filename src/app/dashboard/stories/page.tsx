@@ -1,5 +1,7 @@
-import { ComingSoon } from "@/components/common/ComingSoon";
+import { StoriesView } from "@/components/stories/StoriesView";
 
-export default function Page() {
-  return <ComingSoon title="Stories" description="Stories are coming soon." />;
+export const metadata = { title: "Stories · Narraviz" };
+
+export default function StoriesPage() {
+  return <StoriesView />;
 }

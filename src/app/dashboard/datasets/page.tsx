@@ -1,5 +1,7 @@
-import { ComingSoon } from "@/components/common/ComingSoon";
+import { DatasetsView } from "@/components/datasets/DatasetsView";
 
-export default function Page() {
-  return <ComingSoon title="Datasets" description="Dataset upload is coming soon." />;
+export const metadata = { title: "Datasets · Narraviz" };
+
+export default function DatasetsPage() {
+  return <DatasetsView />;
 }

@@ -1,6 +1,5 @@
 import type { ColumnMeta } from "@/types/dataset";
 import type { StoryBlock } from "@/types/story";
-import { suggestChart } from "@/lib/formatData";
 
 /**
  * Checks that every chart in a story only references columns that exist in its dataset,
@@ -32,14 +31,4 @@ let counter = 0;
 export function newBlockId(): string {
   counter = (counter + 1) % 1_000_000;
   return `${Date.now().toString(36)}${counter.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
-
-/** A starting point for a new story: a suggested chart, if the data has one. */
-export function initialBlocks(columns: readonly ColumnMeta[]): StoryBlock[] {
-  const chart = suggestChart(columns);
-  const blocks: StoryBlock[] = [
-    { id: newBlockId(), type: "text", content: "Describe what this data shows." },
-  ];
-  if (chart) blocks.push({ id: newBlockId(), type: "chart", chart, caption: "" });
-  return blocks;
 }

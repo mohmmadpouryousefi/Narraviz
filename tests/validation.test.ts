@@ -6,7 +6,7 @@ import {
   storyBlocksSchema,
   storyPatchSchema,
 } from "@/lib/validation";
-import { initialBlocks, validateBlocksAgainstColumns } from "@/lib/storyBlocks";
+import { validateBlocksAgainstColumns } from "@/lib/storyBlocks";
 import type { ColumnMeta } from "@/types/dataset";
 
 describe("safeCallbackUrl", () => {
@@ -76,7 +76,16 @@ describe("validateBlocksAgainstColumns", () => {
   ];
 
   it("passes when charts reference real columns", () => {
-    expect(validateBlocksAgainstColumns(initialBlocks(columns), columns)).toBeNull();
+    expect(
+      validateBlocksAgainstColumns(
+        [
+          { id: "t", type: "text", content: "" },
+          { id: "c", type: "chart", caption: "", chart: { type: "bar", xColumn: "region", yColumn: "revenue", aggregation: "sum", title: "" } },
+          { id: "n", type: "chart", caption: "", chart: { type: "bar", xColumn: "region", yColumn: null, aggregation: "count", title: "" } },
+        ],
+        columns,
+      ),
+    ).toBeNull();
   });
 
   it("flags unknown and non-numeric columns by block index", () => {

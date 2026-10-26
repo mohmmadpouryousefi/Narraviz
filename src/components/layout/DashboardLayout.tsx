@@ -63,7 +63,23 @@ export function DashboardLayout({ user, children }: { user: DashboardUser; child
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 p-4 md:p-8 overflow-auto">{children}</main>
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Phones: the sidebar is hidden, so navigation moves to a top bar. */}
+        <header className="md:hidden flex items-center gap-2 border-b px-3 py-2">
+          <Link href="/dashboard" aria-label="Narraviz home" className="w-8 h-8 shrink-0 bg-story-gradient rounded-lg flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-white" aria-hidden />
+          </Link>
+          <div className="min-w-0 flex-1">
+            <SidebarNav orientation="horizontal" />
+          </div>
+          <form action={logOut}>
+            <Button type="submit" variant="ghost" size="sm" aria-label="Sign out">
+              <LogOut className="w-4 h-4" aria-hidden />
+            </Button>
+          </form>
+        </header>
+        <main className="flex-1 min-w-0 p-4 md:p-8 overflow-auto">{children}</main>
+      </div>
     </div>
   );
 }
