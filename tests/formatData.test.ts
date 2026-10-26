@@ -6,6 +6,7 @@ import {
   formatPercent,
   numericValues,
   relativeTime,
+  isMeasure,
   suggestChart,
 } from "@/lib/formatData";
 import type { ColumnMeta, DataRow } from "@/types/dataset";
@@ -124,5 +125,27 @@ describe("suggestChart", () => {
 
   it("returns null when nothing is chartable", () => {
     expect(suggestChart([{ name: "id", type: "string", nullCount: 0, uniqueCount: 1000 }])).toBeNull();
+  });
+});
+
+describe("isMeasure", () => {
+  const num = (name: string): ColumnMeta => ({ name, type: "number", nullCount: 0, uniqueCount: 10 });
+
+  it.each(["id", "ID", "customer_id", "order-id", "zip", "postal_code", "phone", "row", "No"])("treats %j as an identifier", (name) => {
+    expect(isMeasure(num(name))).toBe(false);
+  });
+
+  it.each(["revenue", "price", "valid", "paid", "zipped_size", "keyword_count", "android_users"])("treats %j as a measure", (name) => {
+    expect(isMeasure(num(name))).toBe(true);
+  });
+
+  it("is never true for non-numeric columns", () => {
+    expect(isMeasure({ name: "revenue", type: "string", nullCount: 0, uniqueCount: 3 })).toBe(false);
+  });
+
+  it("keeps identifiers out of chart suggestions", () => {
+    expect(suggestChart([num("id"), { name: "region", type: "string", nullCount: 0, uniqueCount: 3 }])).toMatchObject({
+      aggregation: "count",
+    });
   });
 });

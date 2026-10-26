@@ -22,8 +22,9 @@ Narraviz is a portfolio project under active development. This table is the sour
 | Accounts: email/password and GitHub sign-in (Auth.js) | ✅ Done |
 | PostgreSQL storage for datasets and stories (Prisma) | ✅ Done |
 | REST API for datasets and stories, with validation and per-user access | ✅ Done |
-| Datasets, stories, and editor pages | 🚧 In progress |
-| Insights engine and AI narrative (Claude, with a stats-only fallback) | 🚧 In progress |
+| Datasets, stories, and story editor pages | ✅ Done |
+| Insights engine: trends, category shares, outliers, correlations | ✅ Done |
+| AI narrative (Claude) with a stats-only fallback and a check against invented numbers | ✅ Done |
 | PDF/PowerPoint export, share links, white-label branding | 💡 Planned |
 | Dark mode toggle | 💡 Planned |
 
@@ -106,6 +107,20 @@ Errors are JSON: `{ "error": "message", "fields": { "name": "message" } }`.
 - Uploads are limited before the body is read, and CSVs are always parsed on the server.
 - Not yet implemented: rate limiting on sign-in, email verification, password reset.
 
+## How a story is generated
+
+1. **Insights are computed in code** (`src/lib/insights.ts`), never by the model:
+   - **Trend:** per date, with a linear fit; the R² decides whether the change is described as steady or uneven.
+   - **Top group:** a category's share of a total, compared with an even split.
+   - **Outlier:** Tukey's fences (1.5 × IQR), naming the row it came from.
+   - **Correlation:** Pearson r ≥ 0.5, always with a note that correlation isn't causation. Columns that move in lockstep (|r| ≥ 0.98) are treated as one derived from the other, so they don't repeat the same finding.
+   - Identifier columns (`id`, `customer_id`, `zip`, ...) are never summed or charted.
+   - The best insight of each kind comes first, so five correlations can't crowd out a trend.
+2. **The narrative** (`src/lib/aiNarrative.ts`): with `ANTHROPIC_API_KEY` set, Claude writes a headline and summary from the insights only, via forced tool use. Every number in its text is checked against the insights; if it wrote one that isn't there, or the call fails, the deterministic narrative (`src/lib/narrative.ts`) is used instead. The editor shows which one wrote the story.
+3. **Charts:** a line chart for a date plus a measure, and a category breakdown as a second chart.
+
+Everything the generator writes can be edited, reordered or removed in the editor.
+
 ## Project structure
 
 ```
@@ -114,11 +129,14 @@ src/
   app/              Routes (App Router) and API route handlers
   auth.ts           Auth.js configuration
   components/
-    charts/         BarChart, LineChart
+    charts/         BarChart, LineChart, ChartView
+    datasets/       Upload and preview
+    editor/         Story editor and block editors
     sections/       Landing page sections
     layout/         Navbar, Footer, DashboardLayout
     ui/             shadcn/ui components
-  lib/              CSV parsing, aggregation, validation, database client
+  lib/              CSV parsing, insights, narrative, validation, database and API clients
+  hooks/            useDataset / useStory data hooks
   types/            Shared dataset and story types
 tests/              Vitest tests
 ```

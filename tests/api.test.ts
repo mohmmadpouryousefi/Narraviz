@@ -11,6 +11,8 @@ vi.mock("@/auth", () => ({
 }));
 
 const hasDb = Boolean(process.env.DATABASE_URL);
+// Story generation must not call the real Anthropic API from tests.
+delete process.env.ANTHROPIC_API_KEY;
 
 describe.skipIf(!hasDb)("API", async () => {
   const { db } = await import("@/lib/db");
@@ -139,15 +141,28 @@ describe.skipIf(!hasDb)("API", async () => {
       return { ds, res, body: await res.json() };
     }
 
-    it("creates a draft with a suggested chart", async () => {
+    it("generates a draft with narrative, charts and insights computed from the data", async () => {
       const { res, body } = await createStory();
       expect(res.status).toBe(201);
-      expect(body.story).toMatchObject({ title: "sales story", status: "draft", datasetName: "sales" });
-      expect(body.story.blocks.find((b: { type: string }) => b.type === "chart").chart).toMatchObject({
-        type: "line",
-        xColumn: "date",
-        yColumn: "revenue",
-      });
+      expect(body.story).toMatchObject({ status: "draft", datasetName: "sales", narrativeSource: "stats" });
+
+      const types = body.story.blocks.map((b: { type: string }) => b.type);
+      expect(types[0]).toBe("text");
+      expect(types).toContain("insight");
+
+      const charts = body.story.blocks.filter((b: { type: string }) => b.type === "chart");
+      expect(charts[0].chart).toMatchObject({ type: "line", xColumn: "date", yColumn: "revenue" });
+      expect(charts[1].chart).toMatchObject({ type: "bar", xColumn: "region", yColumn: "revenue" });
+
+      // Real numbers from the CSV: EU 100 + US 250 (the NA row is skipped).
+      const top = body.story.blocks.find((b: { type: string; insight?: { kind: string } }) => b.insight?.kind === "top");
+      expect(top.insight.title).toBe("US accounts for 71.4% of total revenue");
+    });
+
+    it("keeps a title given by the client", async () => {
+      const { dataset: ds } = await (await upload(CSV)).json();
+      const res = await stories.POST(json("POST", { datasetId: ds.id, title: "My story" }));
+      expect((await res.json()).story.title).toBe("My story");
     });
 
     it("cannot be created from another user's dataset", async () => {

@@ -133,12 +133,22 @@ export function aggregate(
   return points;
 }
 
+const IDENTIFIER_NAME = /(^|[_\s-])(id|uuid|key|code|zip|postal|postcode|phone|index|row)$|^(id|no|nr|number)$/i;
+
+/**
+ * Whether a numeric column holds quantities worth summing or charting. Identifiers such as
+ * "id", "customer_id" or "zip" are numeric but meaningless to add up.
+ */
+export function isMeasure(column: ColumnMeta): boolean {
+  return column.type === "number" && !IDENTIFIER_NAME.test(column.name.trim());
+}
+
 /**
  * Picks a sensible first chart: a date column with a numeric column becomes a line chart,
  * a low-cardinality category with a numeric column becomes a bar chart.
  */
 export function suggestChart(columns: readonly ColumnMeta[]): ChartSpec | null {
-  const numeric = columns.filter((c) => c.type === "number");
+  const numeric = columns.filter(isMeasure);
   const date = columns.find((c) => c.type === "date");
   const category = columns
     .filter((c) => c.type === "string" || c.type === "boolean")
