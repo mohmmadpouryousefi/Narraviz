@@ -16,6 +16,27 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: narraviz
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d narraviz"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/narraviz
+      # Test-only value; the real secret lives in the deployment environment.
+      AUTH_SECRET: ci-only-not-a-real-secret-ci-only-not-a-real
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,6 +46,14 @@ jobs:
           cache: npm
 
       - run: npm ci --no-audit --no-fund
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Check migrations match the schema
+        # Exit code 2 means schema.prisma has changes without a migration.
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

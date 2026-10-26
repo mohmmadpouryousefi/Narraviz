@@ -19,8 +19,9 @@ Narraviz is a portfolio project under active development. This table is the sour
 | CSV parsing: type inference, null handling, size and row limits | ✅ Done |
 | Bar and line charts with aggregation (sum, avg, count, min, max) | ✅ Done |
 | Unit and component tests (Vitest + Testing Library) | ✅ Done |
-| Accounts: GitHub and email/password sign-in (Auth.js) | 🚧 In progress |
-| PostgreSQL storage for datasets and stories (Prisma) | 🚧 In progress |
+| Accounts: email/password and GitHub sign-in (Auth.js) | ✅ Done |
+| PostgreSQL storage for datasets and stories (Prisma) | ✅ Done |
+| REST API for datasets and stories, with validation and per-user access | ✅ Done |
 | Datasets, stories, and editor pages | 🚧 In progress |
 | Insights engine and AI narrative (Claude, with a stats-only fallback) | 🚧 In progress |
 | PDF/PowerPoint export, share links, white-label branding | 💡 Planned |
@@ -33,22 +34,30 @@ Narraviz is a portfolio project under active development. This table is the sour
 - **Styling:** Tailwind CSS 4, shadcn/ui (Radix primitives)
 - **Charts:** Recharts, d3
 - **Animation:** GSAP, Framer Motion
-- **Data:** papaparse for CSV parsing, Zod for validation, Zustand for client state
-- **Testing:** Vitest, Testing Library, jsdom
+- **Data:** PostgreSQL, Prisma 7, papaparse for CSV parsing, Zod for validation
+- **Auth:** Auth.js (NextAuth v5): email/password with scrypt hashing, optional GitHub OAuth
+- **Testing:** Vitest, Testing Library, jsdom; API tests run against a real Postgres
 - **Code review:** a multi-agent AI reviewer runs on pull requests (see `REVIEW.md`)
 
 ## Getting started
 
-Requires Node.js 22.
+Requires Node.js 22 and Docker (for Postgres).
 
 ```bash
 git clone https://github.com/mohmmadpouryousefi/Narraviz.git
 cd Narraviz
-npm install
+npm install                  # also generates the Prisma client
+
+cp .env.example .env         # then set AUTH_SECRET: npx auth secret
+docker compose up -d         # Postgres on localhost:5432
+npm run db:deploy            # apply migrations
+
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open http://localhost:3000 and create an account.
+
+**GitHub sign-in (optional):** create an OAuth app at https://github.com/settings/developers with the callback URL `http://localhost:3000/api/auth/callback/github`, then set `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET`. The GitHub button only appears when both are set.
 
 ## Scripts
 
@@ -60,6 +69,8 @@ Open http://localhost:3000.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm test` | Run the test suite once |
 | `npm run test:watch` | Run tests in watch mode |
+| `npm run db:migrate` | Create a migration after changing `prisma/schema.prisma` |
+| `npm run db:deploy` | Apply pending migrations |
 
 ## How the data pipeline works
 
@@ -68,17 +79,46 @@ Open http://localhost:3000.
 3. **Aggregate** (`src/lib/formatData.ts`): groups rows by the x column and combines y values. Time series are sorted by date; categories are sorted by value, and the long tail is merged into "Other" (only for sums and counts, where merging is meaningful).
 4. **Suggest a chart:** a date column with a numeric column becomes a line chart; a low-cardinality category with a numeric column becomes a bar chart.
 
+## API
+
+All endpoints require a signed-in session and only ever return the caller's own data. Another user's dataset or story returns `404`, not `403`, so ids can't be probed.
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/api/datasets` | List your datasets (without row data) |
+| `POST` | `/api/datasets` | Upload a CSV (`multipart/form-data`: `file`, optional `name`); parsed on the server |
+| `GET` | `/api/datasets/:id` | One dataset with columns and rows |
+| `PATCH` | `/api/datasets/:id` | Rename (`{ "name": "..." }`) |
+| `DELETE` | `/api/datasets/:id` | Delete a dataset and its stories |
+| `GET` | `/api/stories` | List your stories |
+| `POST` | `/api/stories` | Create a draft story from a dataset (`{ "datasetId": "..." }`) |
+| `GET` | `/api/stories/:id` | One story with its blocks |
+| `PATCH` | `/api/stories/:id` | Update title, description, status or blocks; chart columns are checked against the dataset |
+| `DELETE` | `/api/stories/:id` | Delete a story |
+
+Errors are JSON: `{ "error": "message", "fields": { "name": "message" } }`.
+
+## Security notes
+
+- Passwords are hashed with scrypt (Node's `crypto`), with a per-password salt and the parameters stored alongside the hash.
+- Sign-in takes the same time whether or not the email exists, so response time doesn't reveal which accounts exist.
+- Post-login redirects only accept same-site paths (no open redirects).
+- Uploads are limited before the body is read, and CSVs are always parsed on the server.
+- Not yet implemented: rate limiting on sign-in, email verification, password reset.
+
 ## Project structure
 
 ```
+prisma/             Schema and migrations
 src/
-  app/              Routes (App Router)
+  app/              Routes (App Router) and API route handlers
+  auth.ts           Auth.js configuration
   components/
     charts/         BarChart, LineChart
     sections/       Landing page sections
     layout/         Navbar, Footer, DashboardLayout
     ui/             shadcn/ui components
-  lib/              CSV parsing, aggregation and formatting
+  lib/              CSV parsing, aggregation, validation, database client
   types/            Shared dataset and story types
 tests/              Vitest tests
 ```
