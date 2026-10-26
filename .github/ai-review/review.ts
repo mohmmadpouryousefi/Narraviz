@@ -408,5 +408,10 @@ async function main(): Promise<void> {
 
 main().catch((err: unknown) => {
   console.error(err);
+  // Surface the reason as an annotation on the run page (no need to open the raw log)
+  const reasons: string[] = [];
+  for (let e: unknown = err; e instanceof Error; e = e.cause) reasons.push(e.message);
+  const message = (reasons.length ? reasons.join(" <- ") : String(err)).replace(/\r?\n/g, " ");
+  console.log(`::error title=AI review failed::${message}`);
   process.exit(1);
 });
