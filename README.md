@@ -1,119 +1,88 @@
 # 📊 Narraviz
 
-> **Transform Your Data Into Compelling Visual Stories**
+> Turn a CSV into a data story: charts, computed insights, and a written narrative.
 
-An AI-powered data storytelling platform that instantly converts complex datasets into engaging, interactive visual narratives for business insights, presentations, and data-driven decision making.
+Narraviz is a data storytelling app built with Next.js and TypeScript. You upload a CSV, Narraviz infers the column types, suggests a chart, computes insights (trends, outliers, correlations), and writes a short narrative around them.
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![GSAP](https://img.shields.io/badge/GSAP-3.12-88CE02?style=flat-square&logo=greensock)](https://greensock.com/gsap/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](#license)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
-## ✨ Features
+## Status
 
-- 🤖 **AI-Powered Insights** - Advanced algorithms automatically discover patterns and generate actionable insights
-- 📈 **Smart Visualizations** - Intelligent chart selection and adaptive layouts for maximum impact
-- ⚡ **One-Click Publishing** - Transform analysis into polished presentations in seconds
-- 🎨 **White-Label Branding** - Custom colors, fonts, and styling for brand consistency
-- 📤 **Multi-Format Export** - PDF, PowerPoint, web widgets, and secure sharing links
-- 🔒 **Enterprise Security** - SOC 2 Type II certified with end-to-end encryption
-- 📱 **Responsive Design** - Seamless experience across desktop, tablet, and mobile devices
-- 🎭 **Smooth Animations** - Professional GSAP-powered animations and interactions
+Narraviz is a portfolio project under active development. This table is the source of truth for what works today.
 
+| Area | Status |
+| --- | --- |
+| Landing page (GSAP animations, pricing, features) | ✅ Done |
+| CSV parsing: type inference, null handling, size and row limits | ✅ Done |
+| Bar and line charts with aggregation (sum, avg, count, min, max) | ✅ Done |
+| Unit and component tests (Vitest + Testing Library) | ✅ Done |
+| Accounts: GitHub and email/password sign-in (Auth.js) | 🚧 In progress |
+| PostgreSQL storage for datasets and stories (Prisma) | 🚧 In progress |
+| Datasets, stories, and editor pages | 🚧 In progress |
+| Insights engine and AI narrative (Claude, with a stats-only fallback) | 🚧 In progress |
+| PDF/PowerPoint export, share links, white-label branding | 💡 Planned |
+| Dark mode toggle | 💡 Planned |
 
+## Tech stack
 
-## 🏗️ Tech Stack
+- **Framework:** Next.js 15 (App Router), React 19
+- **Language:** TypeScript in strict mode
+- **Styling:** Tailwind CSS 4, shadcn/ui (Radix primitives)
+- **Charts:** Recharts, d3
+- **Animation:** GSAP, Framer Motion
+- **Data:** papaparse for CSV parsing, Zod for validation, Zustand for client state
+- **Testing:** Vitest, Testing Library, jsdom
+- **Code review:** a multi-agent AI reviewer runs on pull requests (see `REVIEW.md`)
 
-### Frontend
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Animations**: GSAP (GreenSock)
-- **Icons**: Lucide React
+## Getting started
 
-### Development Tools
-- **Linting**: ESLint
-- **Code Formatting**: Prettier (via ESLint config)
-- **Build Tool**: Next.js built-in bundler
-- **Package Manager**: npm/yarn
+Requires Node.js 22.
 
+```bash
+git clone https://github.com/mohmmadpouryousefi/Narraviz.git
+cd Narraviz
+npm install
+npm run dev
+```
 
-## 🎨 Design System
+Open http://localhost:3000.
 
-Narraviz uses a carefully crafted design system with:
+## Scripts
 
-- **Custom Color Palette**: Data-primary, secondary, and accent colors
-- **Typography**: Responsive text scales and font weights
-- **Components**: Consistent UI components built with shadcn/ui
-- **Animations**: Smooth GSAP-powered micro-interactions
-- **Dark/Light Mode**: Adaptive theming support
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build (also type-checks and lints) |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Run the test suite once |
+| `npm run test:watch` | Run tests in watch mode |
 
-## 🛠️ Development
+## How the data pipeline works
 
+1. **Parse** (`src/lib/csvParser.ts`): reads the CSV with papaparse, rejects files over 10 MB or 200 columns, and stops reading after 50,000 rows so large files are never fully loaded into memory.
+2. **Infer types:** a column is `number`, `date`, or `boolean` only if every non-empty value fits; otherwise it stays `string`. Ambiguous formats such as `03/05/2024` are deliberately not treated as dates.
+3. **Aggregate** (`src/lib/formatData.ts`): groups rows by the x column and combines y values. Time series are sorted by date; categories are sorted by value, and the long tail is merged into "Other" (only for sums and counts, where merging is meaningful).
+4. **Suggest a chart:** a date column with a numeric column becomes a line chart; a low-cardinality category with a numeric column becomes a bar chart.
 
+## Project structure
 
+```
+src/
+  app/              Routes (App Router)
+  components/
+    charts/         BarChart, LineChart
+    sections/       Landing page sections
+    layout/         Navbar, Footer, DashboardLayout
+    ui/             shadcn/ui components
+  lib/              CSV parsing, aggregation and formatting
+  types/            Shared dataset and story types
+tests/              Vitest tests
+```
 
-## 🌟 Key Components
+## Contributing
 
-### Landing Page Sections
-- **HeroSection**: Video background with animated text and CTAs
-- **HowItWorksSection**: 3-step process with interactive demonstrations
-- **FeaturesSection**: 6 feature cards with hover animations
-- **PricingSection**: 3-tier pricing with popular plan highlighting
-- **CTASection**: Final conversion section with gradient background
-
-### Layout Components
-- **Navbar**: Sticky navigation with smooth scroll and mobile menu
-- **Footer**: Professional footer with social links and newsletter
-
-### Animation Components
-- **HeroTextAnimation**: Staggered text reveal animations
-- **RevealOnScroll**: Intersection observer-based animations
-- **MagneticButton**: Magnetic hover effect for buttons
-- **DataVisualization**: Interactive chart demonstrations
-
-## 📱 Responsive Design
-
-Narraviz is built mobile-first with breakpoints:
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1024px  
-- **Desktop**: > 1024px
-
-All components adapt seamlessly across devices with optimized touch targets and readable typography.
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-- **Email**: support@narraviz.com
-- **Documentation**: [docs.narraviz.com](https://docs.narraviz.com)
-- **Issues**: [GitHub Issues](https://github.com/mohmmadpouryousefi/Narraviz/issues)
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- [shadcn/ui](https://ui.shadcn.com/) for beautiful components
-- [GSAP](https://greensock.com/) for powerful animations
-- [Lucide](https://lucide.dev/) for beautiful icons
-
----
-
-<div align="center">
-  <strong>Built with ❤️ by the Narraviz Team</strong><br>
-  <sub>Transform your data. Tell your story. Drive results.</sub>
-</div>
+Issues and pull requests are welcome. Every pull request is reviewed by the AI reviewer described in `REVIEW.md`; please run `npm run lint`, `npm run typecheck` and `npm test` before opening one.

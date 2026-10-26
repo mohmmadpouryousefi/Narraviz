@@ -17,10 +17,9 @@ export function CTASection() {
               Ready to Revolutionize Your Data Storytelling?
             </h3>
             <p className="text-white/90 text-base md:text-lg mb-10 max-w-3xl mx-auto leading-relaxed">
-              Join over 10,000+ data professionals, analysts, and executives
-              who trust Narraviz to transform their raw data into compelling,
-              actionable stories. Start your free trial today—no credit card
-              required.
+              Upload a CSV and get a first draft of your story in minutes:
+              a chart, the insights behind it, and a narrative you can edit.
+              Free while Narraviz is in beta.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
               <Link href="/dashboard">
@@ -35,7 +34,7 @@ export function CTASection() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-3 text-lg"
+                className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white px-8 py-3 text-lg"
               >
                 <Headphones className="w-5 h-5 mr-2" />
                 Talk to Sales

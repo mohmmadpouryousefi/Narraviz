@@ -130,8 +130,8 @@ export function FeaturesSection() {
           <RevealOnScroll delay={0.3}>
             <FeatureCard
               icon={ShieldCheck}
-              title="Bank-Grade Security"
-              description="SOC 2 Type II certified with end-to-end encryption, SSO integration, and advanced compliance features trusted by Fortune 500 companies."
+              title="Private by Default"
+              description="Every dataset and story belongs to your account. Uploads are size-limited and validated, and every request checks that the data is yours."
               color="bg-data-primary"
             />
           </RevealOnScroll>

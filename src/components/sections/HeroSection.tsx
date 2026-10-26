@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   TrendingUp,
-  Users,
-  Star,
+  FileSpreadsheet,
+  BarChart3,
   PlayCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +16,6 @@ import {
   FloatingElements,
   RevealOnScroll,
   MagneticButton,
-  AnimatedCounter,
 } from "@/components/animations/GSAPAnimations";
 import { ClientOnly } from "@/components/ClientOnly";
 
@@ -97,35 +96,20 @@ export function HeroSection() {
             </p>
           </RevealOnScroll>
 
-          {/* Animated Social Proof */}
+          {/* What the product does (no user counts or ratings until they are real) */}
           <RevealOnScroll delay={0.3}>
-            <div className="flex items-center justify-center gap-6 text-xs text-white/80 mb-8">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/80 mb-8">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-yellow-300" />
-                <span className="font-medium">
-                  <ClientOnly fallback="10,000+">
-                    <AnimatedCounter end={10000} suffix="+" />
-                  </ClientOnly>{" "}
-                  professionals trust us
-                </span>
+                <FileSpreadsheet className="w-4 h-4 text-yellow-300" aria-hidden />
+                <span className="font-medium">CSV in, story out</span>
               </div>
               <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-300" />
-                <span className="font-medium">
-                  <ClientOnly fallback="4.9">
-                    <AnimatedCounter end={4.9} duration={1.5} />
-                  </ClientOnly>
-                  ★ customer rating
-                </span>
+                <BarChart3 className="w-4 h-4 text-yellow-300" aria-hidden />
+                <span className="font-medium">Automatic chart suggestions</span>
               </div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-300" />
-                <span className="font-medium">
-                  <ClientOnly fallback="500%">
-                    <AnimatedCounter end={500} suffix="%" />
-                  </ClientOnly>{" "}
-                  productivity boost
-                </span>
+                <TrendingUp className="w-4 h-4 text-green-300" aria-hidden />
+                <span className="font-medium">Trends, outliers and correlations</span>
               </div>
             </div>
           </RevealOnScroll>
@@ -147,7 +131,7 @@ export function HeroSection() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-white/30 text-white hover:bg-white/10 px-8 py-3 text-lg group backdrop-blur-sm"
+                  className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white px-8 py-3 text-lg group backdrop-blur-sm"
                 >
                   <PlayCircle className="w-5 h-5 mr-2 group-hover:text-yellow-300 transition-colors" />
                   Watch Demo
@@ -156,25 +140,18 @@ export function HeroSection() {
             </div>
           </RevealOnScroll>
 
-          {/* Trust Indicators with Animation */}
+          {/* Tech stack (no customer logos until there are real customers) */}
           <RevealOnScroll delay={0.5}>
             <div className="mt-8 pt-6 border-t border-white/20">
               <p className="text-sm text-white/60 mb-4">
-                Trusted by teams at
+                Built with
               </p>
-              <div className="flex items-center justify-center gap-8 opacity-80">
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Microsoft
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Google
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Salesforce
-                </div>
-                <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
-                  Adobe
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 opacity-80">
+                {["Next.js", "TypeScript", "PostgreSQL", "Claude"].map((tech) => (
+                  <div key={tech} className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-all duration-300">
+                    {tech}
+                  </div>
+                ))}
               </div>
             </div>
           </RevealOnScroll>
