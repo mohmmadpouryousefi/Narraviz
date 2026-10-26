@@ -338,7 +338,9 @@ async function main(): Promise<void> {
   for (const r of failedFinders) console.error("Finder failed:", r.reason);
   if (failedFinders.length === finderResults.length) {
     // Every call failed: usually a missing/invalid API key or no credits. Fail the job instead of passing silently.
-    throw new Error("All finder agents failed; check ANTHROPIC_API_KEY and account credits.");
+    throw new Error("All finder agents failed; check ANTHROPIC_API_KEY and account credits.", {
+      cause: (failedFinders[0] as PromiseRejectedResult).reason,
+    });
   }
   const raw = finderResults.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 
