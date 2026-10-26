@@ -127,6 +127,14 @@ function annotatePatch(patch: string): { annotated: string; rightLines: Set<numb
   return { annotated: out.join("\n"), rightLines };
 }
 
+/** Shows run stats on the Actions run page, so a clean review is distinguishable from a silent failure. */
+async function writeStepSummary(markdown: string): Promise<void> {
+  const file = process.env.GITHUB_STEP_SUMMARY;
+  if (!file) return;
+  const { appendFile } = await import("node:fs/promises");
+  await appendFile(file, markdown);
+}
+
 async function getFile(path: string, ref: string): Promise<string | null> {
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path, ref });
@@ -272,6 +280,11 @@ async function verify(finding: Finding, fileContent: string, diffFile: DiffFile 
     ),
   );
 
+  if (votes.every((v) => v.status === "rejected")) {
+    throw new Error(`All verifier calls failed for ${finding.path}:${finding.line}`, {
+      cause: (votes[0] as PromiseRejectedResult).reason,
+    });
+  }
   const yes = votes.filter((v) => v.status === "fulfilled" && v.value.valid === true).length;
   console.log(`[vote ${yes}/${VERIFIER_STANCES.length}] ${finding.path}:${finding.line} ${finding.title}`);
   return yes >= MIN_VOTES;
@@ -321,10 +334,13 @@ async function main(): Promise<void> {
   const finderResults = await Promise.allSettled(
     FINDER_FOCUSES.map((focus) => findIssues(focus, reviewRules, prContext, diffText)),
   );
-  const raw = finderResults.flatMap((r) => {
-    if (r.status === "rejected") console.error("Finder failed:", r.reason);
-    return r.status === "fulfilled" ? r.value : [];
-  });
+  const failedFinders = finderResults.filter((r) => r.status === "rejected");
+  for (const r of failedFinders) console.error("Finder failed:", r.reason);
+  if (failedFinders.length === finderResults.length) {
+    // Every call failed: usually a missing/invalid API key or no credits. Fail the job instead of passing silently.
+    throw new Error("All finder agents failed; check ANTHROPIC_API_KEY and account credits.");
+  }
+  const raw = finderResults.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 
   // 2. Dedupe + drop style-only findings
   const candidates = dedupe(raw)
@@ -346,6 +362,13 @@ async function main(): Promise<void> {
     candidates.map(async (f) => verify(f, await fileFor(f.path), diffByPath.get(f.path))),
   );
   const confirmed = candidates.filter((_, i) => verdicts[i]);
+
+  await writeStepSummary(
+    `## AI review\n\n` +
+      `- Files reviewed: ${diffFiles.length}\n` +
+      `- Finders succeeded: ${finderResults.length - failedFinders.length}/${finderResults.length}\n` +
+      `- Raw findings: ${raw.length}, after filtering: ${candidates.length}, confirmed by vote: ${confirmed.length}\n`,
+  );
 
   if (confirmed.length === 0) {
     console.log("No confirmed findings.");
