@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.github/ai-review/node_modules
 /.pnp
 .pnp.*
 .yarn/*
